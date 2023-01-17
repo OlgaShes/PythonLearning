@@ -20,8 +20,8 @@ def make_players_step(field, x_or_o):
     n = len(field)
     while True:
         print(f'Куда хотите поставить {x_or_o}? (ряд колонка): ')
-        step = [int(c) for c in input().split(' ')]
-        if 0 < step[0] < n and 0 < step[1] < n:
+        step = [int(c) for c in input().split()]
+        if len(step) == 2 and 0 < step[0] < n and 0 < step[1] < n:
             if field[step[0]][step[1]] == ' ':
                 field[step[0]][step[1]] = x_or_o
                 return field
@@ -29,6 +29,7 @@ def make_players_step(field, x_or_o):
                 print('Данное поле уже занято.')
         else:
             print('Введено неверное значение. Введите номер ряда и номер колонки через пробел.')
+            continue
 
 def make_bot_step(field, x_or_o):
     steps = list(range(0, len(field)))
@@ -101,37 +102,59 @@ def get_field(num):
         field.append(line)
     return field
 
-print('Добро пожаловать в игру Крестики-Нолики')
-
-print('Хотите сыграть? (да / нет)')
-answer = input()
-if answer.lower() == "да":
+def get_size():
     while True:
-        size = input('Какой будет размер поля? (одной цифрой) -> ')
-        if not size.isdigit():
+        num = input('Какой будет размер поля? (одной цифрой) -> ')
+        if not num.isdigit():
             print('Надо ввести число')
             continue
-        elif int(size) < 3:
+        elif int(num) < 3:
             print('Это слишком мало')
             continue
-        elif int(size) == 3:
-            count_for_win = 3
-        else:
-            count_for_win = int(input('Сколько подряд должно быть для выигрыша? -> '))
-        playing_field = get_field(int(size))
-        print('Выхотите играть за Х или за О? (для выбора введите Х или О)')
+        return int(num)
+
+def get_count_for_win(size):
+    while True:
+        num = input('Сколько подряд должно быть для выигрыша? -> ')
+        if not num.isdigit():
+            print('Надо ввести число')
+            continue
+        elif int(num) < 3:
+            print('Это слишком мало') 
+            continue
+        elif int(num) > size:
+            print('Это больше, чем размер поля')
+            continue
+        return int(num)
+
+def get_x_or_y():
+    while True:
+        print('Вы хотите играть за Х или за О? (для выбора введите Х или О)')
         answer = input().lower()
         if answer == "х" or answer == "x":
-            players_step = 'Х'
-            play(playing_field, count_for_win, players_step)
+            return 'Х'
         elif answer == "о" or answer == "o" or answer == "0":
-            players_step = 'O'
-            play(playing_field, count_for_win, players_step)
+            return 'O'
         else: 
             print('Введено неверное значение')
             continue
+
+print('Добро пожаловать в игру Крестики-Нолики')
+
+print('Хотите сыграть? (да / нет)')
+answer = input().lower().strip()
+if answer == "да":
+    while True:
+        size = get_size()
+        if size == 3:
+            count_for_win = 3
+        else:
+            count_for_win = get_count_for_win(size)
+        playing_field = get_field(size)
+        players_step = get_x_or_y()
+        play(playing_field, count_for_win, players_step)
         print('Спасибо за игру! Хотите сыграть еще раз? (да / нет)')
-        answer = input().lower()
+        answer = input().lower().strip()
         if answer == "да":
             continue
         elif answer == "нет":
@@ -140,5 +163,7 @@ if answer.lower() == "да":
         else:
             print('Я тебя не совсем понял, но сочту за отказ. До встречи!')
             break
-else:
+elif answer == "нет":
     print('Ну нет так нет. До встречи!')
+else:
+    print('Я тебя не совсем понял, но сочту за отказ. До встречи!')
