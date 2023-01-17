@@ -14,7 +14,7 @@ def print_field(matrix):
             print()
         else:
             print()
-            print('     ', '----' * (n-1))
+            print('   ', '-----' * (n-1))
 
 def make_players_step(field, x_or_o):
     n = len(field)
@@ -38,30 +38,30 @@ def make_bot_step(field, x_or_o):
             field[step[0]][step[1]] = x_or_o
             return field
 
-def if_win(field, x_or_o):
+def if_win(field, win_count, x_or_o):
     n = len(field)
     res1 = 0
     res2 = 0
     for i in range(1, n):
         res1 += 1 if field[i][i] == x_or_o else 0
         res2 += 1 if field[i][n - i] == x_or_o else 0
-    if res1 == n - 1 or res2 == n - 1:
+    if res1 == win_count or res2 == win_count:
         return True
     for i in range(1, n):
         res1 = 0
         for j in range(1, n):
             res1 += 1 if field[i][j] == x_or_o else 0
-        if res1 == n - 1:
+        if res1 == win_count:
             return True
     for j in range(1, n):
         res1 = 0
         for i in range(1, n):
             res1 += 1 if field[i][j] == x_or_o else 0
-        if res1 == n - 1:
+        if res1 == win_count:
             return True
     return False
 
-def play(field, p_step):
+def play(field, win_count, p_step):
     print_field(field)
     if p_step == 'Х':
         b_step = 'O'
@@ -78,7 +78,7 @@ def play(field, p_step):
             field = make_players_step(field, p_step)
             count += 1
             print_field(field)
-            if if_win(field, p_step) is True:
+            if if_win(field, win_count, p_step) is True:
                 print('Поздравляю, ты победил!')
                 break
             turn = 1
@@ -88,11 +88,18 @@ def play(field, p_step):
             count += 1
             sleep(1)
             print_field(field)
-            if if_win(field, b_step) is True:
+            if if_win(field, win_count, b_step) is True:
                 print('Бот победил!')
                 break
             turn = 0
     else: print('К сожалению, ходы закончились, ничья')
+
+def get_field(num):
+    field = [list(range(0, num + 1))]
+    for i in range(1, num + 1):
+        line = [i] + [' '] * num
+        field.append(line)
+    return field
 
 print('Добро пожаловать в игру Крестики-Нолики')
 
@@ -100,18 +107,26 @@ print('Хотите сыграть? (да / нет)')
 answer = input()
 if answer.lower() == "да":
     while True:
-        playing_field = [[0, 1, 2, 3],
-                        [1, ' ', ' ', ' '],
-                        [2, ' ', ' ', ' '],
-                        [3, ' ', ' ', ' ']]
+        size = input('Какой будет размер поля? (одной цифрой) -> ')
+        if not size.isdigit():
+            print('Надо ввести число')
+            continue
+        elif int(size) < 3:
+            print('Это слишком мало')
+            continue
+        elif int(size) == 3:
+            count_for_win = 3
+        else:
+            count_for_win = int(input('Сколько подряд должно быть для выигрыша? -> '))
+        playing_field = get_field(int(size))
         print('Выхотите играть за Х или за О? (для выбора введите Х или О)')
         answer = input().lower()
         if answer == "х" or answer == "x":
             players_step = 'Х'
-            play(playing_field, players_step)
+            play(playing_field, count_for_win, players_step)
         elif answer == "о" or answer == "o" or answer == "0":
             players_step = 'O'
-            play(playing_field, players_step)
+            play(playing_field, count_for_win, players_step)
         else: 
             print('Введено неверное значение')
             continue
