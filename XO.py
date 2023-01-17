@@ -9,18 +9,19 @@ def print_field(matrix):
                 print(' ' + str(matrix[i][j]).ljust(3), end='|')
             else:
                 print(' ' + str(matrix[i][j]).ljust(3), end=' ')
-        if i == 1 or i == 2:
+        if i == 0 or i == n - 1:
             print()
-            print('     ', '----' * (n-1))
+            print()
         else:
             print()
-            print()
+            print('     ', '----' * (n-1))
 
 def make_players_step(field, x_or_o):
+    n = len(field)
     while True:
         print(f'Куда хотите поставить {x_or_o}? (ряд колонка): ')
         step = [int(c) for c in input().split(' ')]
-        if 1 <= step[0] <= 3 and 1 <= step[1] <= 3:
+        if 0 < step[0] < n and 0 < step[1] < n:
             if field[step[0]][step[1]] == ' ':
                 field[step[0]][step[1]] = x_or_o
                 return field
@@ -30,8 +31,9 @@ def make_players_step(field, x_or_o):
             print('Введено неверное значение. Введите номер ряда и номер колонки через пробел.')
 
 def make_bot_step(field, x_or_o):
+    steps = list(range(0, len(field)))
     while True:
-        step = [int(random.choice('123')) for i in range(2)]
+        step = [random.choice(steps) for i in range(2)]
         if field[step[0]][step[1]] == ' ':
             field[step[0]][step[1]] = x_or_o
             return field
@@ -43,28 +45,24 @@ def if_win(field, x_or_o):
     for i in range(1, n):
         res1 += 1 if field[i][i] == x_or_o else 0
         res2 += 1 if field[i][n - i] == x_or_o else 0
-    if res1 == 3 or res2 == 3:
+    if res1 == n - 1 or res2 == n - 1:
         return True
     for i in range(1, n):
         res1 = 0
         for j in range(1, n):
             res1 += 1 if field[i][j] == x_or_o else 0
-        if res1 == 3:
+        if res1 == n - 1:
             return True
     for j in range(1, n):
         res1 = 0
         for i in range(1, n):
             res1 += 1 if field[i][j] == x_or_o else 0
-        if res1 == 3:
+        if res1 == n - 1:
             return True
     return False
 
-def play(p_step):
-    playing_field = [[0, 1, 2, 3],
-                [1, ' ', ' ', ' '],
-                [2, ' ', ' ', ' '],
-                [3, ' ', ' ', ' ']]
-    print_field(playing_field)
+def play(field, p_step):
+    print_field(field)
     if p_step == 'Х':
         b_step = 'O'
         turn = 0
@@ -74,42 +72,46 @@ def play(p_step):
         turn = 1
         print('Бот ходит первым')
     count = 1
-    while count <= (len(playing_field) - 1)**2:
+    while count <= (len(field) - 1)**2:
         if turn == 0:
             print('Твой ход:')
-            playing_field = make_players_step(playing_field, p_step)
+            field = make_players_step(field, p_step)
             count += 1
-            print_field(playing_field)
-            if if_win(playing_field, p_step) is True:
+            print_field(field)
+            if if_win(field, p_step) is True:
                 print('Поздравляю, ты победил!')
                 break
             turn = 1
         else:
             print('Ход бота:')
-            playing_field = make_bot_step(playing_field, b_step)
+            field = make_bot_step(field, b_step)
             count += 1
             sleep(1)
-            print_field(playing_field)
-            if if_win(playing_field, b_step) is True:
+            print_field(field)
+            if if_win(field, b_step) is True:
                 print('Бот победил!')
                 break
             turn = 0
     else: print('К сожалению, ходы закончились, ничья')
 
-
 print('Добро пожаловать в игру Крестики-Нолики')
+
 print('Хотите сыграть? (да / нет)')
 answer = input()
 if answer.lower() == "да":
     while True:
+        playing_field = [[0, 1, 2, 3],
+                        [1, ' ', ' ', ' '],
+                        [2, ' ', ' ', ' '],
+                        [3, ' ', ' ', ' ']]
         print('Выхотите играть за Х или за О? (для выбора введите Х или О)')
         answer = input().lower()
         if answer == "х" or answer == "x":
             players_step = 'Х'
-            play(players_step)
+            play(playing_field, players_step)
         elif answer == "о" or answer == "o" or answer == "0":
             players_step = 'O'
-            play(players_step)
+            play(playing_field, players_step)
         else: 
             print('Введено неверное значение')
             continue
